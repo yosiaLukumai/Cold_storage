@@ -3,10 +3,10 @@
 ##### Manage logs, humidity, temp and other parameter from your finger tip, the application is quite simple to use and you can customize it, below are some sample pics for the application
 
 ##### Dashboard Screenshot
-![alt text](https://github.com/yosiaLukumai/Cold_storage/tree/master/demo/dash.png?raw=true)
+![Dashboard](https://raw.githubusercontent.com/yosiaLukumai/Cold_storage/master/demo/dash.png)
 
-##### Log screenshot
-![alt text](https://github.com/yosiaLukumai/Cold_storage/tree/master/demo/log.png?raw=true)
+##### Log Screenshot
+![Log](https://raw.githubusercontent.com/yosiaLukumai/Cold_storage/master/demo/log.png)
 
 
 ###### How to use
