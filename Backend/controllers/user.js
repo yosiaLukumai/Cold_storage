@@ -30,15 +30,16 @@ const login = async (req, res) => {
 
 const register = async (req, res) => {
   try {
-    // let connected = await dbConfig.reconnect();
-    // console.log(connected);
-
+    
     const { email, password } = req.body;
     const saved = await userModel.create({
       email,
       password,
+      deviceId: Number((Math.random() * 10000).toFixed(0))
     });
     if (saved) {
+   
+      
       return res.json(createOutput(true, saved));
     } else {
       return res.json(createOutput(false, saved));

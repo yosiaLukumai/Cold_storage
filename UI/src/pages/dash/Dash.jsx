@@ -188,7 +188,7 @@ export const Dash = () => {
                                         <Icon color="#003049" ml="0.7rem" boxSize="3.4rem" as={LiaTemperatureHighSolid} />
                                     </Box>
                                     <Box pl="0.7rem">
-                                        <Text color="#003049" fontSize={((screenSize.width > 539 && screenSize.width < 700) || (screenSize.width > 750 && screenSize.width < 1110)) ? '1.2rem' : '1.5rem'} fontWeight="bold">Max Temp</Text>
+                                        <Text color="#003049" fontSize={((screenSize.width > 539 && screenSize.width < 700) || (screenSize.width > 750 && screenSize.width < 1110)) ? '1.2rem' : '1.5rem'} fontWeight="bold">Temperature</Text>
                                         <Text color="#fff" fontSize="1.3rem" fontWeight="bold">{Number(kpiData?.fridgeMax).toFixed(2)} C</Text>
                                     </Box>
                                 </Box>
@@ -197,7 +197,7 @@ export const Dash = () => {
                                         <Icon color="#003049" ml="0.7rem" boxSize="3.4rem" as={LiaTemperatureLowSolid} />
                                     </Box>
                                     <Box pl="0.7rem">
-                                        <Text color="#003049" fontSize={((screenSize.width > 539 && screenSize.width < 700) || (screenSize.width > 750 && screenSize.width < 1110)) ? '1.2rem' : '1.5rem'} fontWeight="bold">Min Temp</Text>
+                                        <Text color="#003049" fontSize={((screenSize.width > 539 && screenSize.width < 700) || (screenSize.width > 750 && screenSize.width < 1110)) ? '1.2rem' : '1.5rem'} fontWeight="bold">Humidity</Text>
                                         <Text color="#fff" fontSize="1.3rem" fontWeight="bold">{Number(kpiData?.fridgeMin).toFixed(2)} C</Text>
                                     </Box>
                                 </Box>

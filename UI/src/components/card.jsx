@@ -87,6 +87,8 @@ const CardComponent = ({ onChildEvent }) => {
                 mode: "cors"
             })
             const response = await result.json();
+            console.log(response);
+            
             // console.log(response);
             if (response.success) {
                 // console.log(response);
