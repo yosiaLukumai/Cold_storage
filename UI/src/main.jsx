@@ -49,7 +49,9 @@ const router  = createBrowserRouter([
     ]
     
   }
-])
+], {
+  basename: "/coldroom"
+})
 
 
 const colors = {
@@ -65,7 +67,7 @@ const theme = extendTheme({ colors })
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ChakraProvider theme={theme}>
-    <RouterProvider router={router} />
+    <RouterProvider router={router}  />
 
     </ChakraProvider>
   </React.StrictMode>,
