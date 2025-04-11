@@ -81,7 +81,7 @@ const GetLogsSpecific = async (req, res) => {
     try {
         let parameter = req.params.parameter
         let fridgeID = req.params.fridgeID 
-        const results = await LogModal.find({fridgeID: String(fridgeID)},  `${parameter} createdAt`)
+        const results = await LogModal.find({fridgeID: String(fridgeID)},  `${parameter} createdAt`).sort({ createdAt: -1 });
         if(results) {
             return res.json(createOutput(true, results))
         }else {

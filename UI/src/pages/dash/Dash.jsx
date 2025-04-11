@@ -4,7 +4,6 @@ import { retriveData } from "../../utils/localStorage"
 import { Chart } from "react-google-charts"
 import { MainUrl } from "../../../variables"
 import { MdOutlineRoomPreferences } from "react-icons/md";
-import { RiFridgeFill } from "react-icons/ri";
 import "../../../src/App.scss"
 import { WiHumidity } from "react-icons/wi";
 import { FaTemperatureHigh } from "react-icons/fa";
@@ -13,7 +12,6 @@ import { LiaTemperatureHighSolid } from "react-icons/lia";
 import { LiaTemperatureLowSolid } from "react-icons/lia";
 import { IoMdResize } from "react-icons/io";
 import { Box, SimpleGrid, Icon, Text, useToast, Flex } from "@chakra-ui/react"
-import { Grid, GridItem } from '@chakra-ui/react'
 import { useEffect, useState } from "react"
 import { io } from "socket.io-client"
 import { Select } from 'chakra-react-select';
@@ -37,7 +35,7 @@ export const Dash = () => {
 
 
     const options = {
-        title: "Fridge Max  & Fridge Min",
+        title: "Fridge Temp & Humidity",
         titleTextStyle: {
             fontSize: 20
         },

@@ -20,7 +20,6 @@ export const DashBoard = () => {
     const logout = () => {
         console.log("logging out");
         save("ColdStorage", null);
-        // console.log(retriveData("ColdStorage"), "data....");
 
         navigator("/", { replace: true });
 
@@ -32,7 +31,7 @@ export const DashBoard = () => {
                     <Box py="0.7rem" px="0.7rem" mx="auto" width={{ base: '100%', sm: '80%', md: '60%' }}>
                         <Flex minWidth='max-content' alignItems='center' gap='2'>
                             <Box p='2' cursor="pointer" onClick={() => navigateTo("")}>
-                                <Heading size='lg' color="white" display="flex" gap="2"> <MdOutlineSevereCold color="white" /> ColdRoom </Heading>
+                                <Heading size='lg' color="white" display="flex" gap="2"> <MdOutlineSevereCold color="white" /> GeneBank </Heading>
                             </Box>
                             <Spacer />
                             <Icon color="white" cursor="pointer" ml="0.2rem" onClick={() => navigateTo("add")} boxSize="1.6rem" as={IoMdAddCircle} />
@@ -42,7 +41,6 @@ export const DashBoard = () => {
                         </Flex>
                     </Box>
                 </Box>
-
                 <Box>
                     <Outlet />
                 </Box>

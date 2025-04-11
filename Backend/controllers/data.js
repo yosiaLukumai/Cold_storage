@@ -1,10 +1,12 @@
 const dataModel = require("./../models/data");
 const userModel = require("./../models/users");
-const picModel = require("./../models/pics")
+const LogModal = require("./../models/logs")
 const createOutput = require("../utils").createOutput;
 const BoxModel = require("../models/Boxs")
 const io = require("./../index");
 const { LastDayAVGAggregator } = require("../db/connect");
+const PDFDocument = require('pdfkit');
+const fridges = require("../models/fridges");
 const serveData = async (req, res) => {
     try {
         // let { temp, hum, size, deviceId } = req.body;
@@ -44,12 +46,183 @@ const serveGraphData = async (req, res) => {
         const found = await userModel.findOne({ deviceId: String(deviceId) });
         if (found) {
             const fiveLastData = await dataModel.find({ userId: found?._id }, "temp hum size createdAt", {sort: { createdAt: -1 }}).limit(6).exec();
-            console.log(fiveLastData);
             
             return res.json(createOutput(true, fiveLastData))
         } else {
             return res.json({ status: 0, message: "Device not registered..." })
         }
+    } catch (error) {
+        return res.json(createOutput(false, error.message, true));
+    }
+}
+
+
+// const exportAllDataPDF = async (req, res) => {
+//     try {
+//       const { machineId } = req.params;
+  
+//       // Retrieve all logs for the machine
+//       const logs = await logModel.find({ machine: machineId }).sort({ timestamp: -1 });
+  
+//       if (logs.length === 0) {
+//         return res.json(createOutput(false, "No log data found for this machine"));
+//       }
+  
+//       // Create a new PDF document
+//       const doc = new PDFDocument();
+//       const filePath = path.join(__dirname, `reports/machine_${machineId}_all_data.pdf`);
+  
+//       // Ensure the directory exists
+//       if (!fs.existsSync(path.dirname(filePath))) {
+//         fs.mkdirSync(path.dirname(filePath), { recursive: true });
+//       }
+  
+//       // Save the PDF to a file
+//       const writeStream = fs.createWriteStream(filePath);
+//       doc.pipe(writeStream);
+  
+//       // Add a title
+//       doc.fontSize(20).text("Machine Data Report", { align: "center" });
+//       doc.moveDown();
+  
+//       // Add general machine information
+//       doc.fontSize(14).text(`Machine ID: ${machineId}`);
+//       doc.text(`Total Logs: ${logs.length}`);
+//       doc.text(`Generated At: ${new Date().toLocaleString()}`);
+//       doc.moveDown();
+  
+//       logs.forEach((log, index) => {
+//         doc.fontSize(12).text(`Log #${index + 1}`);
+//         doc.text(`  Timestamp: ${log.createdAt.toLocaleString()}`);
+//         doc.text(`  Temperature: ${log.data.temperature} °C`);
+//         doc.text(`  Humidity: ${log.data.humidity} %`);
+//         doc.text(`  pH: ${log.data.pH}`);
+//         doc.text(`  EC: ${log.data.EC} µs/cm`);
+//         doc.text(`  N: ${log.data.N} mg/kg`);
+//         doc.text(`  P: ${log.data.P} mg/kg`);
+//         doc.text(`  K: ${log.data.K} mg/kg`);
+//         doc.moveDown();
+//       });
+  
+//       // Finalize the PDF
+//       doc.end();
+  
+//       // Wait for the stream to finish
+//       writeStream.on("finish", () => {
+//         res.setHeader("Content-Type", "application/pdf");
+//         res.download(filePath, `machine_${machineId}_all_data.pdf`, (err) => {
+//           if (err) {
+//             console.error("Error sending file:", err.message);
+//           }
+  
+//           // Clean up the file after sending
+//           try {
+//             fs.unlinkSync(filePath);
+//           } catch (unlinkError) {
+//             console.error("Error deleting file:", unlinkError.message);
+//           }
+//         });
+//       });
+  
+//       // Handle stream errors
+//       writeStream.on("error", (err) => {
+//         console.error("Error writing PDF:", err.message);
+//         return res.json(createOutput(false, "Error generating PDF", true));
+//       });
+//     } catch (error) {
+//       console.error(error.message);
+//       return res.json(createOutput(false, error.message, true));
+//     }
+//   };
+
+
+const exportData = async (req, res) => {
+    try {
+        
+        const { parameter, workingfridge, filterOption } = req.params;
+        const { startDate, endDate } = req.query;
+
+        // query firt the fridge
+        let fridge = await fridges.findOne({fridgeID: workingfridge})
+        if(!fridge) {
+            return res.status(404).send('No such fridge.');
+        }
+
+        
+        // workingfridge = fridge._id
+    
+        let query = { fridgeID: fridge._id };
+    
+        if (filterOption === 'range' && startDate && endDate) {
+          query.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate) };
+        } else if (filterOption === 'week') {
+          const today = new Date();
+          const oneWeekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+          query.createdAt = { $gte: oneWeekAgo, $lte: today };
+        } else if (filterOption === 'month') {
+          const today = new Date();
+          const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+          const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+          query.createdAt = { $gte: firstDayOfMonth, $lte: lastDayOfMonth };
+        }
+
+        
+    
+        const logs = await LogModal.find(query).sort({ createdAt: 1 });
+
+    
+        if (!logs || logs.length === 0) {
+          return res.status(404).send('No data found for the specified criteria.');
+        }
+    
+        const doc = new PDFDocument();
+    
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename="logs.pdf"');
+    
+        doc.pipe(res);
+    
+        doc.fontSize(16).text(`${parameter} Logs Export`, { align: 'center' });
+        doc.moveDown();
+    
+        const tableTop = doc.y;
+        const columnWidths = [100, 80, 80, 80, 80, 120];
+        const columnHeadings = ['Fridge ID', 'Room Temp', 'Room Hum', 'Fridge Max', 'Fridge Min', 'Timestamp'];
+    
+        // Table Header
+        let currentX = 50;
+        columnHeadings.forEach((heading, index) => {
+          doc.rect(currentX, tableTop, columnWidths[index], 20).stroke();
+          doc.text(heading, currentX + 5, tableTop + 5);
+          currentX += columnWidths[index];
+        });
+    
+        // Table Data
+        let rowTop = tableTop + 20;
+        logs.forEach((log) => {
+          currentX = 50;
+          const rowData = [
+            log.fridgeID,
+            log.roomtemp,
+            log.roomhum,
+            log.fridgeMax,
+            log.fridgeMin,
+            log.createdAt.toISOString(),
+          ];
+    
+          rowData.forEach((data, index) => {
+            doc.rect(currentX, rowTop, columnWidths[index], 20).stroke();
+            doc.text(String(data), currentX + 5, rowTop + 5);
+            currentX += columnWidths[index];
+          });
+          rowTop += 20;
+        });
+
+        console.log("ending...");
+        
+    
+        doc.end();
+        
     } catch (error) {
         return res.json(createOutput(false, error.message, true));
     }
@@ -187,5 +360,6 @@ module.exports = {
     fetchDataLogs,
     serveGraphData,
     SaveImages,
-    FindSizes
+    FindSizes,
+    exportData
 }
