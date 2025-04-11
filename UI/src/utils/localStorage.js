@@ -6,3 +6,4 @@ export const save = (key, data) => {
 export const retriveData = (key) => {
     return JSON.parse(localStorage.getItem(key))
 }
+
